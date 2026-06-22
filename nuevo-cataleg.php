@@ -15,8 +15,7 @@ $iM = load_model('inputs');
 
 //=====NUEVO=====
 $fcM = load_model('fotocasa');
-
-$fotocasa = new fotoCasaModel('', '');
+$fotocasa = new fotoCasaModel('');  //  API Key
 //====NUEVO END===
 
 // $cM = load_model('crm');
@@ -132,35 +131,7 @@ if (isset($_POST['id_cataleg'])) {
             //para el campo nombre_usuario se le pasa email_usuario (el email es usado para el login)
             $ruu = $eM->update_cataleg($id_cataleg, $tipus,$preu,$descripcio,$venut,$m2,$estat,$zona,$localitat,$descripcioes,$adreca,$ordre,$descripcio_en,$localitzacio,$certificat_text,$visible,$destacat,$cp,$hab,$banys,$servicios,$consum,$emissions,$lletra_consum,$lletra_emissions);
             if ($ruu) {
-                //==========NUEVO===========
-                    if ($enviar_fotocasa == 1) {
-                        $property_fotocasa = [
-                            'external_id' => 'CASA-' . $id_cataleg,
-                            'title' => $tipus . ' en ' . $localitat,
-                            'operation' => 'sale',
-                            'property_type' => mapear_tipo_property($tipus),
-                            'price' => (int)$preu,
-                            'street' => $adreca,
-                            'number' => '',
-                            'zipcode' => $cp,
-                            'surface' => $m2,
-                            'rooms' => $hab,
-                            'bathrooms' => $banys,
-                            'description' => strip_tags($descripcio),
-                            'features' => implode(', ', $servicios),
-                            'conservation_status' => mapear_estado($estat),
-                            'user_id' => $_SESSION['id_usuario'],
-                        ];
-                        
-                        $result_fotocasa = $fotocasa->insertProperty($property_fotocasa, 'POST');
-                        
-                        if ($result_fotocasa['success']) {
-                            $msg_fotocasa = '<div class="alert alert-success">Publicado en Fotocasa</div>';
-                        } else {
-                            $msg_fotocasa = '<div class="alert alert-warning">No publicado: ' . $result_fotocasa['message'] . '</div>';
-                        }
-                    }
-                    //=======NUEVO END======
+                
                 header('Location: '.$ruta_inicio.'admin/cataleg.php'); exit();
             } else $str_errores = '<div class="error_alert">Error actualizando cataleg</div>';
         } else { //NUEVO
@@ -558,15 +529,18 @@ include_once('inc/cabecera.inc.php'); //cargando cabecera
                                 </div>
                             </div>
                             <?php //NUEVO?>
-                            <div class="alert alert-info">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" 
-                                        id="enviar_fotocasa" name="enviar_fotocasa" value="1">
-                                    <label class="form-check-label" for="enviar_fotocasa">
-                                        <strong>Publicar en Fotocasa.es</strong>
-                                    </label>
+                            <?php if ($id_cataleg == 0) { ?>
+                                <div class="alert alert-info">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                            id="enviar_fotocasa" name="enviar_fotocasa" value="1">
+                                        <label class="form-check-label" for="enviar_fotocasa">
+                                            <strong>Publicar en Fotocasa.es</strong>
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
+                                <?php if (!empty($msg_fotocasa)) echo $msg_fotocasa; ?>
+                            <?php } ?>
  
                             <?php if (!empty($msg_fotocasa)) echo $msg_fotocasa; ?>
                             <?php //NUEVO_END?>
